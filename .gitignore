@@ -1,0 +1,33 @@
+# ─── Node ──────────────────────────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ─── Environment variables (NEVER commit real secrets) ─────────────────────────
+server/.env
+# .env.example is safe to commit – it contains no real secrets
+
+# ─── Build outputs ─────────────────────────────────────────────────────────────
+dist/
+build/
+server/dist/
+
+# ─── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+logs/
+server/*.log
+server/*.txt
+
+# ─── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ─── Editor ────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ─── Docker ────────────────────────────────────────────────────────────────────
+# Keep docker-compose.yml – it is intentionally committed

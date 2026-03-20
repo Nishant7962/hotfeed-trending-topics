@@ -1,0 +1,237 @@
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* HotFeed Design Tokens */
+  --font-display: "Syne", sans-serif;
+  --font-body: "DM Sans", sans-serif;
+  --font-mono: "Syne Mono", monospace;
+  
+  /* Colors - Deep Ocean Aesthetic */
+  --bg-ocean: #060D12;
+  --bg-blob-1: #0A2233;
+  --bg-blob-2: #071A25;
+  --glass-surface: rgba(8, 28, 44, 0.55);
+  --glass-accent: rgba(0, 180, 160, 0.12);
+  --trending-hot: #FF5C35;
+  --score-gradient-start: #FF5C35;
+  --score-gradient-end: #FF8C42;
+  --active-selected: rgba(0, 220, 190, 0.18);
+  --text-primary: #E8F4F0;
+  --text-secondary: #7BADB0;
+  --border-glow: rgba(0, 200, 180, 0.15);
+  --live-pulse: #00C8B4;
+  --grid-overlay: rgba(0, 200, 180, 0.03);
+  
+  /* Standard theme vars for compatibility */
+  --font-size: 16px;
+  --background: var(--bg-ocean);
+  --foreground: var(--text-primary);
+  --card: var(--glass-surface);
+  --card-foreground: var(--text-primary);
+  --popover: var(--glass-surface);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--trending-hot);
+  --primary-foreground: var(--text-primary);
+  --secondary: var(--text-secondary);
+  --secondary-foreground: var(--text-primary);
+  --muted: rgba(255, 255, 255, 0.06);
+  --muted-foreground: var(--text-secondary);
+  --accent: var(--glass-accent);
+  --accent-foreground: var(--text-primary);
+  --destructive: #d4183d;
+  --destructive-foreground: #ffffff;
+  --border: var(--border-glow);
+  --input: transparent;
+  --input-background: var(--glass-surface);
+  --switch-background: #cbced4;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --ring: var(--live-pulse);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --radius: 16px;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: 12px;
+  --radius-md: 14px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-[#060D12] text-[#E8F4F0];
+    font-family: var(--font-body);
+    overflow-x: hidden;
+  }
+
+  html {
+    font-size: var(--font-size);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+}
+
+@layer utilities {
+  /* Glass Card Formula */
+  .glass-card {
+    background: rgba(8, 28, 44, 0.55);
+    backdrop-filter: blur(24px) saturate(160%);
+    border: 1px solid rgba(0, 200, 180, 0.10);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 
+      0 8px 32px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+  }
+
+  @media (max-width: 768px) {
+    .glass-card {
+      backdrop-filter: blur(12px) saturate(160%);
+    }
+  }
+
+  .glass-chip {
+    background: rgba(8, 28, 44, 0.55);
+    backdrop-filter: blur(24px) saturate(160%);
+    border: 1px solid rgba(0, 200, 180, 0.10);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 
+      0 4px 16px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+  }
+
+  @media (max-width: 768px) {
+    .glass-chip {
+      backdrop-filter: blur(12px) saturate(160%);
+    }
+  }
+
+  .glass-pill {
+    background: rgba(8, 28, 44, 0.55);
+    backdrop-filter: blur(24px) saturate(160%);
+    border: 1px solid rgba(0, 200, 180, 0.10);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 
+      0 4px 16px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    border-radius: 999px;
+  }
+
+  @media (max-width: 768px) {
+    .glass-pill {
+      backdrop-filter: blur(12px) saturate(160%);
+    }
+  }
+
+  /* Typography */
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .font-body {
+    font-family: var(--font-body);
+  }
+
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+
+  /* Shimmer Animation */
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+
+  .shimmer {
+    animation: shimmer 1.8s infinite linear;
+    background: linear-gradient(
+      to right,
+      rgba(0, 200, 180, 0.04) 0%,
+      rgba(0, 200, 180, 0.10) 50%,
+      rgba(0, 200, 180, 0.04) 100%
+    );
+    background-size: 1000px 100%;
+  }
+
+  /* Pulse Animation */
+  @keyframes pulse-slow {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.4;
+    }
+  }
+
+  .pulse-slow {
+    animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Score bar shimmer on hover */
+  @keyframes score-shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .score-shimmer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 30%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+    animation: score-shimmer 2s infinite;
+  }
+}
