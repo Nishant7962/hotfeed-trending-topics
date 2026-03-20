@@ -36,11 +36,7 @@ ok "Node.js $(node -v)"
 command -v npm >/dev/null 2>&1 || fail "npm is not found!"
 ok "npm v$(npm -v)"
 
-command -v docker >/dev/null 2>&1 || fail "Docker is not installed! Install from https://www.docker.com/products/docker-desktop"
-ok "$(docker --version)"
-
-docker info >/dev/null 2>&1 || fail "Docker daemon is not running! Start Docker Desktop and retry."
-ok "Docker daemon is running"
+command -v grep >/dev/null 2>&1 || warn "grep is not found, skipping some checks."
 
 # ─── STEP 2 : Create server/.env ─────────────────────────────────────────────
 step "[STEP 2/6] Configuring environment..."
@@ -57,30 +53,24 @@ else
 fi
 cd "$PROJECT_ROOT"
 
-# ─── STEP 3 : Start Docker Services ──────────────────────────────────────────
-step "[STEP 3/6] Starting PostgreSQL and Redis via Docker Compose..."
-docker compose up -d --wait
-ok "PostgreSQL (port 5432) and Redis (port 6379) are healthy."
-sleep 3   # extra safety margin for DB to accept connections
-
-# ─── STEP 4 : Install Backend Dependencies ───────────────────────────────────
-step "[STEP 4/6] Installing backend dependencies..."
+# ─── STEP 3 : Install Backend Dependencies ───────────────────────────────────
+step "[STEP 3/4] Installing backend dependencies..."
 cd "$PROJECT_ROOT/server"
 npm install
 ok "Backend dependencies installed."
 
-# ─── STEP 5 : Apply DB Schema and Seed ───────────────────────────────────────
-step "[STEP 5/6] Setting up database schema and seeding data..."
-echo "  Running schema.sql inside Docker container..."
-docker exec -i hotfeed_postgres psql -U postgres -d hotfeed < database/schema.sql && ok "Schema applied." || warn "Schema apply had warnings (idempotent — safe to continue)."
+# ─── STEP 4 : Apply DB Schema and Seed ───────────────────────────────────────
+step "[STEP 4/4] Setting up database schema and seeding data..."
+echo "  Applying schema.sql..."
+npx ts-node database/migrate.ts && ok "Schema applied." || warn "Schema apply had warnings (idempotent — safe to continue)."
 
 echo "  Seeding the database..."
-npx ts-node database/seed.ts && ok "Database seeded with 120 sample posts." || warn "Seed encountered an error (posts may already exist — safe to continue)."
+npx ts-node database/seed.ts && ok "Database seeded." || warn "Seed encountered an error (posts may already exist — safe to continue)."
 
 cd "$PROJECT_ROOT"
 
-# ─── STEP 6 : Install Frontend Dependencies ──────────────────────────────────
-step "[STEP 6/6] Installing frontend dependencies..."
+# ─── STEP 5 : Install Frontend Dependencies ──────────────────────────────────
+step "[STEP 5/5] Installing frontend dependencies..."
 npm install
 ok "Frontend dependencies installed."
 

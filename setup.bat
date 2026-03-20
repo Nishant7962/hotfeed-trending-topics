@@ -1,6 +1,6 @@
 @echo off
 setlocal EnableDelayedExpansion
-title HotFeed - One-Click Setup
+title HotFeed - One-Click Setup (Zero Dependencies)
 
 echo.
 echo  =========================================
@@ -10,7 +10,7 @@ echo  =========================================
 echo.
 
 :: ─── STEP 1 : Check Prerequisites ───────────────────────────────────────────
-echo [STEP 1/6] Checking prerequisites...
+echo [STEP 1/4] Checking prerequisites...
 
 where node >nul 2>&1
 if %ERRORLEVEL% NEQ 0 (
@@ -28,26 +28,10 @@ if %ERRORLEVEL% NEQ 0 (
 )
 for /f "tokens=*" %%i in ('npm -v') do set NPM_VER=%%i
 echo  [OK] npm v%NPM_VER%
-
-where docker >nul 2>&1
-if %ERRORLEVEL% NEQ 0 (
-    echo  [ERROR] Docker not installed or not in PATH.
-    echo  Install from: https://www.docker.com/products/docker-desktop
-    pause & exit /b 1
-)
-for /f "tokens=*" %%i in ('docker --version') do set DOCKER_VER=%%i
-echo  [OK] %DOCKER_VER%
-
-docker info >nul 2>&1
-if %ERRORLEVEL% NEQ 0 (
-    echo  [ERROR] Docker daemon not running. Please start Docker Desktop first.
-    pause & exit /b 1
-)
-echo  [OK] Docker daemon is running
 echo.
 
 :: ─── STEP 2 : Configure .env ─────────────────────────────────────────────────
-echo [STEP 2/6] Configuring environment...
+echo [STEP 2/4] Configuring environment...
 
 if not exist "server\.env" (
     if exist "server\.env.example" (
@@ -58,22 +42,17 @@ if not exist "server\.env" (
     )
 ) else (
     echo  [OK] server\.env already exists - keeping it.
+    :: Ensure cloud database credentials exist if not
+    findstr /C:"DATABASE_URL" "server\.env" >nul 2>&1
+    if %ERRORLEVEL% NEQ 0 (
+        echo  [INFO] Setting up cloud databases inside .env ...
+        copy /y "server\.env.example" "server\.env" >nul
+    )
 )
 echo.
 
-:: ─── STEP 3 : Start Docker services ─────────────────────────────────────────
-echo [STEP 3/6] Starting PostgreSQL and Redis via Docker Compose...
-docker compose up -d --wait
-if %ERRORLEVEL% NEQ 0 (
-    echo  [ERROR] docker compose failed. Check your Docker installation.
-    pause & exit /b 1
-)
-echo  [OK] PostgreSQL (5432) and Redis (6379) are healthy.
-echo.
-timeout /t 3 /nobreak >nul
-
-:: ─── STEP 4 : Install Backend + Apply DB Schema + Seed ───────────────────────
-echo [STEP 4/6] Setting up backend (install, schema, seed)...
+:: ─── STEP 3 : Setup Backend (Install, Migrate, Seed) ─────────────────────────
+echo [STEP 3/4] Setting up backend (install, schema, seed)...
 
 cd server
 call npm install
@@ -83,10 +62,9 @@ if %ERRORLEVEL% NEQ 0 (
 )
 echo  [OK] Backend dependencies installed.
 
-:: Copy schema to container with docker cp (avoids stdin redirect issues on Windows)
+:: Run backend migrations via TS node directly
 echo  Applying database schema...
-docker cp "%~dp0server\database\schema.sql" hotfeed_postgres:/tmp/schema.sql
-docker exec hotfeed_postgres psql -U postgres -d hotfeed -f /tmp/schema.sql
+call npx ts-node database/migrate.ts
 if %ERRORLEVEL% NEQ 0 (
     echo  [WARN] Schema apply may have warnings ^(idempotent - safe to continue^).
 ) else (
@@ -99,14 +77,14 @@ call npx ts-node database/seed.ts
 if %ERRORLEVEL% NEQ 0 (
     echo  [WARN] Seed warnings ^(data may already exist - safe to continue^).
 ) else (
-    echo  [OK] Database seeded with 120 sample posts.
+    echo  [OK] Database seeded successfully.
 )
 echo.
 
 cd ..
 
-:: ─── STEP 5 : Install Frontend Dependencies ──────────────────────────────────
-echo [STEP 5/6] Installing frontend dependencies...
+:: ─── STEP 4 : Install Frontend Dependencies ──────────────────────────────────
+echo [STEP 4/4] Installing frontend dependencies...
 call npm install
 if %ERRORLEVEL% NEQ 0 (
     echo  [ERROR] Frontend npm install failed.
@@ -115,8 +93,10 @@ if %ERRORLEVEL% NEQ 0 (
 echo  [OK] Frontend dependencies installed.
 echo.
 
-:: ─── STEP 6 : Launch Servers ─────────────────────────────────────────────────
-echo [STEP 6/6] Launching application...
+:: ─── LAUNCH ──────────────────────────────────────────────────────────────────
+echo  =========================================
+echo    Launching application...
+echo  =========================================
 echo.
 echo  Backend  -^> http://localhost:4000
 echo  Frontend -^> http://localhost:5173
@@ -138,6 +118,7 @@ start "HotFeed Frontend" cmd /k "cd /d ""%~dp0"" && npm run dev"
 echo.
 echo  =========================================
 echo    Setup complete!
+echo    Wait a few seconds for servers to boot
 echo    Open: http://localhost:5173
 echo  =========================================
 echo.

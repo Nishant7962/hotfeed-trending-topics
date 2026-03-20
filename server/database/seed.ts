@@ -3,13 +3,17 @@ dotenv.config({ path: require('path').join(__dirname, '../.env') });
 
 import { Pool } from 'pg';
 
-const pool = new Pool({
-  host:     process.env.PG_HOST     || 'localhost',
-  port:     Number(process.env.PG_PORT) || 5432,
-  database: process.env.PG_DATABASE || 'hotfeed',
-  user:     process.env.PG_USER     || 'postgres',
-  password: process.env.PG_PASSWORD || '',
-});
+const pool = process.env.DATABASE_URL
+  ? new Pool({
+      connectionString: process.env.DATABASE_URL,
+    })
+  : new Pool({
+      host:     process.env.PG_HOST     || 'localhost',
+      port:     Number(process.env.PG_PORT) || 5432,
+      database: process.env.PG_DATABASE || 'hotfeed',
+      user:     process.env.PG_USER     || 'postgres',
+      password: process.env.PG_PASSWORD || '',
+    });
 
 const CATEGORIES = ['Tech', 'Sports', 'Gaming', 'Music', 'Science', 'Culture'] as const;
 
